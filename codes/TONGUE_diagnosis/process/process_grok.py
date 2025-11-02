@@ -4,10 +4,10 @@ import time
 import base64
 from openai import OpenAI
 
-# 환경변수에서 XAI API 키를 읽어옴
+# Read XAI API key from environment variable
 XAI_API_KEY = os.getenv("XAI_API_KEY")
 if not XAI_API_KEY:
-    raise RuntimeError("XAI_API_KEY 환경변수를 먼저 설정하세요!")
+    raise RuntimeError("Please set XAI_API_KEY environment variable first!")
 
 client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1")
 
@@ -21,7 +21,7 @@ PROMPT = (
 )
 RATE_LIMIT_SECONDS = 4
 
-# Grok API로 멀티모달 이미지+텍스트 프롬프트 전송
+# Send multimodal image+text prompt to Grok API
 def grok_infer(image_path: str, prompt: str) -> str:
     with open(image_path, "rb") as img_f:
         img_bytes = img_f.read()
@@ -61,7 +61,7 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         for r in results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print(f"\n✅  완료 → {OUTPUT_PATH}")
+    print(f"\n✅  Complete → {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main() 

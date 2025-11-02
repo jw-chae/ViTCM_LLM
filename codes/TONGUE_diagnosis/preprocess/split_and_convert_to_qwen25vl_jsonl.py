@@ -1,20 +1,21 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Qwen2.5-VL json 데이터를 8:2로 랜덤 분할하여 각각 ShareGPT/vllm 포맷(messages+images, 멀티턴 지원)으로 변환
+Convert Qwen2.5-VL json data to ShareGPT/vllm format (messages+images, multi-turn support) 
+by randomly splitting into 8:2 ratio
 
-jsonl이 아니라 전체를 리스트로 묶어 하나의 json 파일로 저장합니다.
+Instead of jsonl, saves as a single json file with the entire list.
 
-사용법 예시:
+Usage example:
 python split_and_convert_to_qwen25vl_jsonl.py --input_json ../dataset/25.1.10-25.6.3.json --image_dir ../dataset/25.1.10-25.6.3 --output_train_json ../dataset/train.sharegpt.json --output_val_json ../dataset/val.sharegpt.json
 
-- input_json: 원본 json 파일 경로
-- image_dir: 이미지가 들어있는 폴더 경로
-- output_train_json: train set json 파일 경로
-- output_val_json: val set json 파일 경로
+- input_json: Original json file path
+- image_dir: Folder path containing images
+- output_train_json: Train set json file path
+- output_val_json: Val set json file path
 
-Qwen2.5-VL 포맷:
-한 줄에 하나의 대화(chat) 리스트가 들어감
+Qwen2.5-VL format:
+One conversation (chat) list per line
 """
 import json
 import argparse
@@ -40,15 +41,15 @@ def convert_and_write(data, image_dir, output_json):
         out_list.append({"messages": messages, "images": images})
     with open(output_json, 'w', encoding='utf-8') as f:
         json.dump(out_list, f, ensure_ascii=False, indent=2)
-    print(f"{output_json} 파일이 생성되었습니다. (샘플 수: {len(data)})")
+    print(f"{output_json} file created. (Sample count: {len(data)})")
 
 def main():
-    parser = argparse.ArgumentParser(description="Qwen2.5-VL json 8:2 분할 및 ShareGPT/vllm 포맷 변환기 (json 리스트 버전)")
-    parser.add_argument('--input_json', type=str, required=True, help='원본 json 파일 경로')
-    parser.add_argument('--image_dir', type=str, required=True, help='이미지 폴더 경로')
-    parser.add_argument('--output_train_json', type=str, required=True, help='train set json 파일 경로')
-    parser.add_argument('--output_val_json', type=str, required=True, help='val set json 파일 경로')
-    parser.add_argument('--seed', type=int, default=42, help='랜덤 시드 (재현성)')
+    parser = argparse.ArgumentParser(description="Qwen2.5-VL json 8:2 split and ShareGPT/vllm format converter (json list version)")
+    parser.add_argument('--input_json', type=str, required=True, help='Original json file path')
+    parser.add_argument('--image_dir', type=str, required=True, help='Image folder path')
+    parser.add_argument('--output_train_json', type=str, required=True, help='Train set json file path')
+    parser.add_argument('--output_val_json', type=str, required=True, help='Val set json file path')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed (for reproducibility)')
     args = parser.parse_args()
 
     with open(args.input_json, 'r', encoding='utf-8') as f:
@@ -63,7 +64,7 @@ def main():
 
     convert_and_write(train_data, args.image_dir, args.output_train_json)
     convert_and_write(val_data, args.image_dir, args.output_val_json)
-    print(f"총 {n_total}개 중 {len(train_data)}개는 train, {len(val_data)}개는 val로 분할 완료.")
+    print(f"Split completed: {len(train_data)} train, {len(val_data)} val out of {n_total} total.")
 
 if __name__ == "__main__":
     main() 

@@ -3,12 +3,12 @@ import json
 import time
 import replicate
 
-# 환경변수에서 Replicate API 토큰을 읽어옴
+# Read Replicate API token from environment variable
 REPLICATE_API_TOKEN = os.getenv("REPLICATE_API_TOKEN")
 if not REPLICATE_API_TOKEN:
-    raise RuntimeError("REPLICATE_API_TOKEN 환경변수를 먼저 설정하세요!")
+    raise RuntimeError("Please set REPLICATE_API_TOKEN environment variable first!")
 
-# Replicate 토큰 환경변수 설정 (라이브러리 내부에서도 필요)
+# Set Replicate token environment variable (also needed by library internally)
 os.environ["REPLICATE_API_TOKEN"] = REPLICATE_API_TOKEN
 
 INPUT_PATH = '../../dataset/val.sharegpt.json'
@@ -23,7 +23,7 @@ RATE_LIMIT_SECONDS = 4
 
 MODEL_REF = "meta/llama-4-maverick-instruct"
 
-# Llama-4-Scout-Instruct로 멀티모달 이미지+텍스트 프롬프트 전송
+# Send multimodal image+text prompt to Llama-4-Scout-Instruct
 def llama4scout_infer(image_path: str, prompt: str) -> str:
     try:
         with open(image_path, "rb") as img_f:
@@ -36,7 +36,7 @@ def llama4scout_infer(image_path: str, prompt: str) -> str:
                     "temperature": 0.2
                 }
             )
-        # Replicate는 generator일 수 있음
+        # Replicate may return a generator
         if hasattr(output, '__iter__') and not isinstance(output, str):
             return "".join(list(output)).strip()
         return str(output).strip()
@@ -61,7 +61,7 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         for r in results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print(f"\n✅  완료 → {OUTPUT_PATH}")
+    print(f"\n✅  Complete → {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main() 

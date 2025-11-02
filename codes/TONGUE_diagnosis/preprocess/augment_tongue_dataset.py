@@ -101,25 +101,25 @@ class TongueImageAugmenter:
         
         adjusted = Image.merge('RGB', (r, g, b))
         
-        # OpenCV 형식으로 변환
+        # Convert to OpenCV format
         adjusted_cv = cv2.cvtColor(np.array(adjusted), cv2.COLOR_RGB2BGR)
         return adjusted_cv
     
     def augment_single_image(self, image_path, output_dir, base_filename):
-        """단일 이미지 증강"""
-        # 이미지 로드
+        """Augment a single image"""
+        # Load image
         image = cv2.imread(image_path)
         if image is None:
-            print(f"Warning: 이미지를 로드할 수 없습니다: {image_path}")
+            print(f"Warning: Failed to load image: {image_path}")
             return []
         
         augmented_images = []
         
         for i in range(self.augmentation_factor):
-            # 원본 이미지 복사
+            # Copy original image
             aug_image = image.copy()
             
-            # 증강 기법 적용
+            # Apply augmentation technique
             aug_type = random.choice(['rotate', 'scale', 'brightness', 'color_temp'])
             
             if aug_type == 'rotate':
@@ -135,62 +135,62 @@ class TongueImageAugmenter:
                 aug_image = self.adjust_color_temperature(aug_image)
                 suffix = f"_temp_{i+1}"
             
-            # 파일명 생성
+            # Generate filename
             name, ext = os.path.splitext(base_filename)
             aug_filename = f"{name}{suffix}{ext}"
             aug_path = os.path.join(output_dir, aug_filename)
             
-            # 증강된 이미지 저장
+            # Save augmented image
             cv2.imwrite(aug_path, aug_image)
             augmented_images.append(aug_path)
         
         return augmented_images
     
     def augment_dataset(self, json_path, image_dir, output_dir):
-        """전체 데이터셋 증강"""
-        # 출력 디렉토리 생성
+        """Augment entire dataset"""
+        # Create output directory
         os.makedirs(output_dir, exist_ok=True)
         augmented_image_dir = os.path.join(output_dir, "augmented_images")
         os.makedirs(augmented_image_dir, exist_ok=True)
         
-        # JSON 데이터 로드
+        # Load JSON data
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
         
-        print(f"원본 데이터셋 크기: {len(data)}")
+        print(f"Original dataset size: {len(data)}")
         
         augmented_data = []
-        image_mapping = {}  # 원본 이미지 경로 -> 증강된 이미지 경로들
+        image_mapping = {}  # Original image path -> augmented image paths
         
-        # 각 샘플에 대해 증강 수행
-        for idx, sample in enumerate(tqdm(data, desc="데이터 증강 중")):
-            augmented_data.append(sample)  # 원본 샘플 추가
+        # Perform augmentation for each sample
+        for idx, sample in enumerate(tqdm(data, desc="Augmenting data")):
+            augmented_data.append(sample)  # Add original sample
             
-            # 이미지 경로들 처리
+            # Process image paths
             if 'images' in sample and sample['images']:
                 original_images = sample['images']
                 augmented_images = []
                 
                 for img_path in original_images:
-                    # JSON의 이미지 경로에서 파일명만 추출
+                    # Extract filename from JSON image path
                     img_path = os.path.basename(img_path)
                     
-                    # 절대경로 생성
+                    # Create absolute path
                     full_img_path = os.path.join(image_dir, img_path)
                     
-                    # 파일명 추출
+                    # Extract filename
                     base_filename = os.path.basename(img_path)
                     
-                    # 이미 증강된 이미지가 있는지 확인
+                    # Check if already augmented
                     if img_path in image_mapping:
                         augmented_images.extend(image_mapping[img_path])
                     else:
-                        # 새로 증강 수행
+                        # Perform new augmentation
                         aug_images = self.augment_single_image(
                             full_img_path, augmented_image_dir, base_filename
                         )
                         
-                        # 상대 경로로 변환하여 저장
+                        # Convert to relative paths and save
                         rel_aug_images = []
                         for aug_img in aug_images:
                             rel_path = os.path.join("augmented_images", os.path.basename(aug_img))
@@ -199,7 +199,7 @@ class TongueImageAugmenter:
                         image_mapping[img_path] = rel_aug_images
                         augmented_images.extend(rel_aug_images)
                 
-                # 증강된 샘플 생성
+                # Create augmented samples
                 for i in range(self.augmentation_factor):
                     aug_sample = {
                         'messages': sample['messages'].copy(),
@@ -207,37 +207,37 @@ class TongueImageAugmenter:
                     }
                     augmented_data.append(aug_sample)
         
-        # 증강된 데이터셋 저장
+        # Save augmented dataset
         output_json_path = os.path.join(output_dir, "augmented_dataset.json")
         with open(output_json_path, 'w', encoding='utf-8') as f:
             json.dump(augmented_data, f, ensure_ascii=False, indent=2)
         
-        print(f"증강된 데이터셋 크기: {len(augmented_data)}")
-        print(f"증강된 데이터셋 저장됨: {output_json_path}")
-        print(f"증강된 이미지 저장됨: {augmented_image_dir}")
+        print(f"Augmented dataset size: {len(augmented_data)}")
+        print(f"Augmented dataset saved: {output_json_path}")
+        print(f"Augmented images saved: {augmented_image_dir}")
         
         return output_json_path, augmented_image_dir
 
 def main():
-    parser = argparse.ArgumentParser(description='혀 이미지 데이터셋 증강 (수정된 버전)')
+    parser = argparse.ArgumentParser(description='Tongue image dataset augmentation (Modified version)')
     parser.add_argument('--json_path', type=str, 
                        default='/home/joongwon00/Project_Tsinghua_Paper/TCMPipe/dataset/unique_25.1.8_dataset_train_sharegpt_fixed_cleaned.json',
-                       help='입력 JSON 파일 경로')
+                       help='Input JSON file path')
     parser.add_argument('--image_dir', type=str,
                        default='/home/joongwon00/Project_Tsinghua_Paper/TCMPipe/dataset/25.1.8之前所有with上中医三院',
-                       help='이미지 디렉토리 경로')
+                       help='Image directory path')
     parser.add_argument('--output_dir', type=str,
                        default='/home/joongwon00/Project_Tsinghua_Paper/TCMPipe/dataset/augmented_dataset_final',
-                       help='출력 디렉토리 경로')
+                       help='Output directory path')
     parser.add_argument('--augmentation_factor', type=int, default=3,
-                       help='각 이미지당 생성할 증강된 이미지 수')
+                       help='Number of augmented images to generate per image')
     
     args = parser.parse_args()
     
-    # 증강기 초기화
+    # Initialize augmenter
     augmenter = TongueImageAugmenter(augmentation_factor=args.augmentation_factor)
     
-    # 데이터셋 증강 수행
+    # Perform dataset augmentation
     augmenter.augment_dataset(args.json_path, args.image_dir, args.output_dir)
 
 if __name__ == "__main__":

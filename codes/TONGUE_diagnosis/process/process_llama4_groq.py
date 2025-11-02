@@ -4,10 +4,10 @@ import time
 import base64
 from groq import Groq
 
-# 환경변수에서 Groq API 키를 읽어옴
+# Read Groq API key from environment variable
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
-    raise RuntimeError("GROQ_API_KEY 환경변수를 먼저 설정하세요!")
+    raise RuntimeError("Please set GROQ_API_KEY environment variable first!")
 
 client = Groq(api_key=GROQ_API_KEY)
 
@@ -22,7 +22,7 @@ PROMPT_TEXT = (
 RATE_LIMIT_SECONDS = 1
 MODEL_NAME = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-# 이미지 파일을 base64 data URL로 인코딩
+# Encode image file to base64 data URL
 def encode_image_to_data_url(image_path):
     ext = os.path.splitext(image_path)[1].lower()
     mime = 'image/jpeg' if ext in ['.jpg', '.jpeg'] else 'image/png'
@@ -30,7 +30,7 @@ def encode_image_to_data_url(image_path):
         b64 = base64.b64encode(image_file.read()).decode('utf-8')
     return f"data:{mime};base64,{b64}"
 
-# Groq Llama-4-Scout로 멀티모달(이미지+텍스트) 프롬프트 전송 (stream)
+# Send multimodal (image+text) prompt to Groq Llama-4-Scout (stream)
 def llama4groq_infer(image_path: str, prompt: str) -> str:
     try:
         data_url = encode_image_to_data_url(image_path)
@@ -71,7 +71,7 @@ def main():
     with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
         for r in results:
             f.write(json.dumps(r, ensure_ascii=False) + "\n")
-    print(f"\n✅  완료 → {OUTPUT_PATH}")
+    print(f"\n✅  Complete → {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main() 

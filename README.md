@@ -6,6 +6,8 @@
 
 ## News
 
+- **[2025.10.05]** 🎉 Our paper "ViTCM-LLM: A Multimodal RAG Framework for Advanced TCM Clinical Decision Support" has been **accepted as a short paper** at **IEEE BIBM 2025** (IEEE International Conference on Bioinformatics and Biomedicine 2025). The conference received 2083 submissions with an acceptance rate of 19.8% (411 short papers accepted).
+
 - **[2025.07.29]** 🤗 We release ViTCM-LLM, a multimodal RAG framework for advanced TCM clinical decision support. All model code, training code, and evaluation code are anonymously open-sourced. Please check the document below for more details. Welcome to **watch** 👀 this repository for the latest updates.
 
 ## 📁 Project Structure
@@ -157,11 +159,11 @@ python process_gemini.py
 cd codes/TONGUE_diagnosis/evalutation/
 
 # Run evaluation
-python evaluation.py \
+python evaluation2_ver2.py \
+    --input predictions.jsonl \
+    --output results.txt \
     --config token_config.json \
-    --pred predictions.jsonl \
-    --label labels.jsonl \
-    --output results.json
+    --mode category
 
 # Calculate BLEU scores
 python calculate_bleu_score.py
@@ -224,8 +226,8 @@ top_k = 50                                       # Top-k sampling
         "location": "location"
     },
     "weights": {
-        "tongue": 1.0,
-        "coat": 1.0,
+        "tongue": 2.0,
+        "coat": 1.5,
         "location": 1.0,
         "other": 1.0
     },
@@ -272,11 +274,35 @@ top_k = 50                                       # Top-k sampling
    # Validate image matching
    python check_image_matching.py --image_dir /path/to/images --json_file data.json
    ```
-### dataset
-#### The dataset will be updated when the paper is accepted.
+## 📚 Dataset
 
-**Note**: This system is designed for research and educational purposes. For clinical use, please consult with qualified TCM practitioners and follow appropriate medical guidelines. 
+The dataset will be updated soon
+
+**Note**: This system is designed for research and educational purposes. For clinical use, please consult with qualified TCM practitioners and follow appropriate medical guidelines.
+
+<!-- ## 📄 Citation
+
+If you use this code in your research, please cite our paper:
+
+```bibtex
+@inproceedings{vitcm-llm-2025,
+    title={ViTCM-LLM: A Multimodal RAG Framework for Advanced TCM Clinical Decision Support},
+    author={Luo, Lihui and Chae, Joongwon and Liu, Yang and Pantic, Igor and Devedzic, Vladan and Sun, Zhumei and Zeng, Zelin and Matlatipov, Sanatbek and Yin, Xiaoming and Qin, Peiwu},
+    booktitle={IEEE International Conference on Bioinformatics and Biomedicine (BIBM)},
+    year={2025},
+    note={Accepted as short paper}
+}
+``` -->
 
 ## 📄 License
 
-This project is licensed under the Apache License 2.0 - see the LICENSE file for details. 
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+## 🔗 Related Links
+
+* **GitHub Repository**: [https://github.com/jw-chae/ViTCM_LLM](https://github.com/jw-chae/ViTCM_LLM)
+* **Conference Website**: [https://ieeebibm.org/BIBM2025/](https://ieeebibm.org/BIBM2025/)
+
+## 🙏 Acknowledgments
+
+We would like to thank all reviewers and the IEEE BIBM 2025 Program Committee for their valuable feedback. 

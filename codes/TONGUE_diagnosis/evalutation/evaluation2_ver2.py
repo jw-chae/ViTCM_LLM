@@ -142,7 +142,7 @@ def compute_token_list_similarity(pred: List[str], label: List[str], synonyms: D
 # CATEGORY-BASED EVAL
 # =====================
 def get_category_weights(config: dict) -> dict:
-    # config에 weights가 있으면 사용, 없으면 기본값(동일 가중치)
+    # Use weights from config if available, otherwise use default (equal weights)
     default = {"tongue": 1.0, "coat": 1.0, "location": 1.0, "other": 1.0}
     return config.get("weights", default)
 
@@ -157,16 +157,16 @@ def compute_category_similarity(pred_str: str, label_str: str, config: Dict[str,
     score_tongue = compute_token_list_similarity(cats_pred['tongue'], cats_label['tongue'], synonyms)
     score_coat = compute_token_list_similarity(cats_pred['coat'], cats_label['coat'], synonyms)
     score_location = compute_token_list_similarity(cats_pred.get('location', []), cats_label.get('location', []), synonyms)
-    # other: 둘 다 비어있지 않으면 기존대로, 한 쪽이라도 비어있으면 0.0
+    # other: If both are not empty, use existing method; if either is empty, return 0.0
     if cats_pred['other'] and cats_label['other']:
         score_other = compute_token_list_similarity(cats_pred['other'], cats_label['other'], synonyms)
     else:
         score_other = 0.0
-    # 완벽한 매칭인 경우 1.0점 반환
+    # Return 1.0 for perfect match
     if pred_str.strip() == label_str.strip():
         return 1.0, 1.0, 1.0, 1.0, 1.0
     
-    # 가중 평균
+    # Weighted average
     total_weight = weights['tongue'] + weights['coat'] + weights['location'] + weights['other']
     mean_score = (
         score_tongue * weights['tongue'] +
@@ -202,7 +202,7 @@ def batch_eval_and_save(input_dir: str, output_dir: str, config_path: str):
         out_path = os.path.join(output_dir, out_name)
         with open(out_path, 'w', encoding='utf-8') as fout:
             fout.write(f"{avg:.4f}\n")
-        logger.info(f"{fname}: 평균 점수 = {avg:.4f}")
+        logger.info(f"{fname}: Average score = {avg:.4f}")
 
 def compute_similarity_score_graph(G, predict_str: str, label_str: str, config: dict) -> float:
     source_node = "OUT_" + predict_str
@@ -242,7 +242,7 @@ def main():
         if os.path.isdir(args.input):
             batch_eval_and_save(args.input, args.output, args.config)
         else:
-            # 단일 파일 평가
+            # Single file evaluation
             config = load_json_config(args.config)
             with open(args.input, 'r', encoding='utf-8') as f:
                 comparison_data = [json.loads(line) for line in f if line.strip()]
@@ -269,23 +269,23 @@ def main():
             avg_other = total_other / len(comparison_data)
             
             with open(args.output, 'w', encoding='utf-8') as fout:
-                fout.write(f"전체 평균 점수: {avg:.4f}\n")
-                fout.write(f"혀질(Tongue) 점수: {avg_tongue:.4f}\n")
-                fout.write(f"태질(Coat) 점수: {avg_coat:.4f}\n")
-                fout.write(f"위치(Location) 점수: {avg_location:.4f}\n")
-                fout.write(f"기타(Other) 점수: {avg_other:.4f}\n")
-                fout.write(f"데이터 수: {len(comparison_data)}\n")
+                fout.write(f"Overall average score: {avg:.4f}\n")
+                fout.write(f"Tongue quality score: {avg_tongue:.4f}\n")
+                fout.write(f"Coat quality score: {avg_coat:.4f}\n")
+                fout.write(f"Location score: {avg_location:.4f}\n")
+                fout.write(f"Other score: {avg_other:.4f}\n")
+                fout.write(f"Data count: {len(comparison_data)}\n")
             
-            print(f"[INFO] {os.path.basename(args.input)}: 평균 점수 = {avg:.4f}")
-            print(f"[INFO] 혀질(Tongue) 점수 = {avg_tongue:.4f}")
-            print(f"[INFO] 태질(Coat) 점수 = {avg_coat:.4f}")
-            print(f"[INFO] 위치(Location) 점수 = {avg_location:.4f}")
-            print(f"[INFO] 기타(Other) 점수 = {avg_other:.4f}")
-            print(f"[INFO] 데이터 수 = {len(comparison_data)}")
+            print(f"[INFO] {os.path.basename(args.input)}: Average score = {avg:.4f}")
+            print(f"[INFO] Tongue quality score = {avg_tongue:.4f}")
+            print(f"[INFO] Coat quality score = {avg_coat:.4f}")
+            print(f"[INFO] Location score = {avg_location:.4f}")
+            print(f"[INFO] Other score = {avg_other:.4f}")
+            print(f"[INFO] Data count = {len(comparison_data)}")
     elif args.mode == 'graph':
         config = load_json_config(args.config)
         if os.path.isdir(args.input):
-            print("[WARN] graph mode는 단일 파일만 지원합니다.")
+            print("[WARN] graph mode only supports single file.")
             return
         G = build_simple_graph_from_jsonl(args.input)
         with open(args.input, 'r', encoding='utf-8') as f:

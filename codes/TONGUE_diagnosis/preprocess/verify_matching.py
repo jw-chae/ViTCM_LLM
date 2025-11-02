@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-매칭 결과를 검증하는 스크립트
+Script to verify matching results
 """
 import json
 import os
@@ -9,7 +9,7 @@ import re
 from collections import Counter
 
 def normalize_filename(filename):
-    """파일명의 날짜 형식을 정규화"""
+    """Normalize date format in filename"""
     pattern = r'(\d{4})-(\d{1,2})-(\d{1,2})'
     match = re.search(pattern, filename)
     if match:
@@ -21,21 +21,21 @@ def normalize_filename(filename):
     return filename
 
 def verify_matching(json_file, image_dir):
-    """매칭 결과를 검증"""
+    """Verify matching results"""
     
-    # JSON 데이터 로드
+    # Load JSON data
     with open(json_file, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # 실제 이미지 파일 목록
+    # Actual image file list
     existing_files = set(os.listdir(image_dir))
     
-    print(f"JSON 데이터 개수: {len(data)}")
-    print(f"이미지 폴더 파일 개수: {len(existing_files)}")
+    print(f"JSON data count: {len(data)}")
+    print(f"Image folder file count: {len(existing_files)}")
     print()
     
-    # 매칭 결과 추적
-    matched_files = set()  # 실제로 사용된 파일들
+    # Track matching results
+    matched_files = set()  # Actually used files
     unmatched_json = []
     unmatched_files = []
     
@@ -45,7 +45,7 @@ def verify_matching(json_file, image_dir):
         no_space_image = original_image.replace(' ', '')
         no_space_normalized = normalized_image.replace(' ', '')
         
-        # 매칭되는 파일 찾기
+        # Find matching file
         matched_file = None
         if original_image in existing_files:
             matched_file = original_image
@@ -61,51 +61,51 @@ def verify_matching(json_file, image_dir):
         else:
             unmatched_json.append(original_image)
     
-    # 실제 파일 중 매칭되지 않은 것들
+    # Files that are not matched
     for filename in existing_files:
         if filename not in matched_files:
             unmatched_files.append(filename)
     
-    print(f"매칭된 JSON 데이터 개수: {len(data) - len(unmatched_json)}")
-    print(f"매칭 안된 JSON 데이터 개수: {len(unmatched_json)}")
-    print(f"매칭된 이미지 파일 개수: {len(matched_files)}")
-    print(f"매칭 안된 이미지 파일 개수: {len(unmatched_files)}")
+    print(f"Matched JSON data count: {len(data) - len(unmatched_json)}")
+    print(f"Unmatched JSON data count: {len(unmatched_json)}")
+    print(f"Matched image file count: {len(matched_files)}")
+    print(f"Unmatched image file count: {len(unmatched_files)}")
     print()
     
-    # 중복 매칭 확인
+    # Check duplicate matches
     json_images = [item['image'] for item in data]
     json_image_counter = Counter(json_images)
     duplicates = {img: count for img, count in json_image_counter.items() if count > 1}
     
     if duplicates:
-        print(f"JSON에서 중복된 이미지 이름: {len(duplicates)}개")
-        print("중복 예시 (처음 5개):")
+        print(f"Duplicate image names in JSON: {len(duplicates)} items")
+        print("Duplicate examples (first 5):")
         for img, count in list(duplicates.items())[:5]:
-            print(f"  {img}: {count}회")
+            print(f"  {img}: {count} times")
         print()
     
-    # 매칭 안된 JSON 데이터 샘플
+    # Unmatched JSON data samples
     if unmatched_json:
-        print("매칭 안된 JSON 데이터 샘플 (처음 10개):")
+        print("Unmatched JSON data samples (first 10):")
         for i, img in enumerate(unmatched_json[:10]):
             print(f"  {i+1}. {img}")
         print()
     
-    # 매칭 안된 이미지 파일 샘플
+    # Unmatched image file samples
     if unmatched_files:
-        print("매칭 안된 이미지 파일 샘플 (처음 10개):")
+        print("Unmatched image file samples (first 10):")
         for i, img in enumerate(unmatched_files[:10]):
             print(f"  {i+1}. {img}")
         print()
     
-    # 매칭 통계
-    print("=== 매칭 통계 ===")
-    print(f"JSON 데이터: {len(data)}개")
-    print(f"이미지 파일: {len(existing_files)}개")
-    print(f"매칭된 JSON: {len(data) - len(unmatched_json)}개")
-    print(f"매칭된 이미지: {len(matched_files)}개")
-    print(f"매칭률: {(len(data) - len(unmatched_json)) / len(data) * 100:.1f}%")
-    print(f"이미지 활용률: {len(matched_files) / len(existing_files) * 100:.1f}%")
+    # Matching statistics
+    print("=== Matching Statistics ===")
+    print(f"JSON data: {len(data)} items")
+    print(f"Image files: {len(existing_files)} items")
+    print(f"Matched JSON: {len(data) - len(unmatched_json)} items")
+    print(f"Matched images: {len(matched_files)} items")
+    print(f"Match rate: {(len(data) - len(unmatched_json)) / len(data) * 100:.1f}%")
+    print(f"Image utilization rate: {len(matched_files) / len(existing_files) * 100:.1f}%")
 
 if __name__ == "__main__":
     verify_matching("../../dataset/25.1.8之前所有with上中医三院.json", 
