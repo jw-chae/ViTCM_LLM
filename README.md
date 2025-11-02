@@ -1,6 +1,6 @@
-# ViTCM-LLM: Anonymous 2025 BIBM Submission Project
+# ViTCM-LLM: A Multimodal RAG Framework for Advanced TCM Clinical Decision Support
 
-🌍Official code implementation of "*ViTCM-LLM: A Multimodal RAG Framework for Advanced TCM Clinical Decision Support*"
+🌍 Official code implementation of "*ViTCM-LLM: A Multimodal RAG Framework for Advanced TCM Clinical Decision Support*"
 
 ![ViTCM-LLM Framework](img/ViTCM-LLM-framework-1.png)
 
